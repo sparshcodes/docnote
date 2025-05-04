@@ -9,7 +9,7 @@ import userRouter from './routes/userRoute.js'
 
 // app config
 const app = express()
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 4000 
 connectDB()
 connectCloudinary()
 
@@ -21,6 +21,7 @@ app.use(cors())
 app.use('/api/admin', adminRouter)
 app.use('/api/doctor', doctorRouter)
 app.use('/api/user', userRouter)
+app.use(express.static(path.join(__dirname, "..", "frontend", "build")));
 
 
 app.get('/', (req, res) => {
