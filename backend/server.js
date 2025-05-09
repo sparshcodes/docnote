@@ -6,10 +6,11 @@ import connectCloudinary from './config/cloudinary.js';
 import adminRouter from './routes/adminRoute.js';
 import doctorRouter from './routes/doctorRoute.js';
 import userRouter from './routes/userRoute.js';
+import serverless from 'serverless-http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Setup __dirname in ES Module
+// Setup __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -22,18 +23,20 @@ connectCloudinary();
 // Middleware
 app.use(express.json());
 
-// ✅ CORS setup
-app.use(cors({
-  origin: [
-    'https://docnote-eight.vercel.app',
-    'http://localhost:5173',
-    'https://docnote-4qzx.vercel.app',
-    'https://docnote-4qzx-git-main-sparshcodes-projects.vercel.app',
-    'https://docnote-4qzx-jh6tmfwy9-sparshcodes-projects.vercel.app'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
-}));
+// ✅ CORS middleware
+app.use(
+  cors({
+    origin: [
+      'https://docnote-eight.vercel.app',
+      'https://docnote-4qzx.vercel.app',
+      'http://localhost:5173',
+      'https://docnote-4qzx-git-main-sparshcodes-projects.vercel.app',
+      'https://docnote-4qzx-jh6tmfwy9-sparshcodes-projects.vercel.app'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
+);
 
 // Routes
 app.use('/api/admin', adminRouter);
@@ -43,29 +46,15 @@ app.use('/api/user', userRouter);
 // Serve frontend (optional)
 app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 app.get('/', (req, res) => {
-  res.send('Api working...');
+  res.send('API working...');
 });
 
-// Local server
+// ✅ Local development server
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
 }
 
-// ✅ Vercel handler with CORS-safe preflight and app.handle
-const handler = (req, res) => {
-  // Preflight
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    return res.status(204).end();
-  }
-
-  // ✅ Pass to Express middleware and routes
-  app.handle(req, res);
-};
-
-export default handler;
+// ✅ Vercel export
+export const handler = serverless(app);
