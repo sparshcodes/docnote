@@ -28,16 +28,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return res.status(200).json({});
-  }
-  next();
-});
+// 🔧 Removed old OPTIONS check middleware here
 
 // API routes
 app.use('/api/admin', adminRouter);
@@ -57,7 +48,17 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Vercel handler
-export default function handler(req, res) {
+// 🔧 Vercel handler with proper OPTIONS handling
+const handler = (req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    return res.status(204).end(); // 🔧 MUST return 204 or 200
+  }
+
   return app(req, res);
-}
+};
+
+export default handler;
