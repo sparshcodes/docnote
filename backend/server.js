@@ -21,6 +21,16 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', req.headers.origin); // Allow the origin dynamically
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allowed methods
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allowed headers
+    res.header('Access-Control-Allow-Credentials', 'true'); // Allow credentials
+    return res.status(200).json({}); // Respond with HTTP 200 for preflight
+  }
+  next();
+});
 
 // Handle preflight requests
 app.options('*', cors());
