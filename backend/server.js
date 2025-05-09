@@ -22,20 +22,25 @@ connectCloudinary();
 // Middleware
 app.use(express.json());
 
+// ✅ CORS setup with all Vercel domains
 app.use(cors({
-  origin: ['https://docnote-eight.vercel.app', 'http://localhost:5173', 'https://docnote-4qzx.vercel.app'],
+  origin: [
+    'https://docnote-eight.vercel.app',
+    'http://localhost:5173',
+    'https://docnote-4qzx.vercel.app',
+    'https://docnote-4qzx-git-main-sparshcodes-projects.vercel.app',
+    'https://docnote-4qzx-jh6tmfwy9-sparshcodes-projects.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
-
-// 🔧 Removed old OPTIONS check middleware here
 
 // API routes
 app.use('/api/admin', adminRouter);
 app.use('/api/doctor', doctorRouter);
 app.use('/api/user', userRouter);
 
-// Optional: serve frontend (only in production with a React/Vite build)
+// Serve frontend (optional)
 app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 app.get('/', (req, res) => {
   res.send('Api working...');
@@ -48,14 +53,14 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// 🔧 Vercel handler with proper OPTIONS handling
+// ✅ Vercel handler with preflight OPTIONS support
 const handler = (req, res) => {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    return res.status(204).end(); // 🔧 MUST return 204 or 200
+    return res.status(204).end(); // ✅ 204 for preflight
   }
 
   return app(req, res);
