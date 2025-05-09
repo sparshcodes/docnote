@@ -17,7 +17,7 @@ connectCloudinary();
 // middlewares
 app.use(express.json());
 app.use(cors({
-  origin: ['https://docnote-eight.vercel.app', 'http://localhost:5173'],
+  origin: ['https://docnote-eight.vercel.app', 'http://localhost:5173','https://docnote-4qzx.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
