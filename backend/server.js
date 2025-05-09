@@ -22,7 +22,7 @@ connectCloudinary();
 // Middleware
 app.use(express.json());
 
-// ✅ CORS setup with all Vercel domains
+// ✅ CORS setup
 app.use(cors({
   origin: [
     'https://docnote-eight.vercel.app',
@@ -35,7 +35,7 @@ app.use(cors({
   credentials: true
 }));
 
-// API routes
+// Routes
 app.use('/api/admin', adminRouter);
 app.use('/api/doctor', doctorRouter);
 app.use('/api/user', userRouter);
@@ -46,24 +46,26 @@ app.get('/', (req, res) => {
   res.send('Api working...');
 });
 
-// Local development server
+// Local server
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
 }
 
-// ✅ Vercel handler with preflight OPTIONS support
+// ✅ Vercel handler with CORS-safe preflight and app.handle
 const handler = (req, res) => {
+  // Preflight
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    return res.status(204).end(); // ✅ 204 for preflight
+    return res.status(204).end();
   }
 
-  return app(req, res);
+  // ✅ Pass to Express middleware and routes
+  app.handle(req, res);
 };
 
 export default handler;
